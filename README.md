@@ -21,7 +21,7 @@ module:
     etc...
 
 module/application/module.js:
-qh.module("other-module", {
+qh.setModule("other-module", {
   // Follows component names
   directive: [
     "wideView", // Refers to 'wideView.js' in the directive folder. The html will be "<data-wide-view/> 
@@ -40,8 +40,7 @@ qh.module("other-module", {
 
 // Usage (e.g. wideView.js):
 
-qh.component("other-module", function(module) {
-  module.directive("wideView", function() {
-    // Angular directive stuff
-  });
+qh.getModule("other-module")
+.directive("wideView", function() {
+  // Angular directive stuff
 });
