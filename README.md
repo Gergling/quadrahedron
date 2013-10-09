@@ -5,7 +5,13 @@ The idea of this framework will be to help set up angularjs projects in a predic
 The developer can then list module names and module components, and the software will work out where 
 the files are going to be to load them in. Requirejs would likely be involved.
 
+I have included some sample usage below.
+
 Expected folder structure:
+index.html
+vendor:
+  quadrahedron:
+    quadrahedron.js
 module:
   application:
     module.js
@@ -19,6 +25,33 @@ module:
   other-module
     module.js
     etc...
+other-folder-of-modules
+
+index.html:
+<script type="text/javascript" src="vendor/quadrahedron/quadrahedron.js"></script>
+<script type="text/javascript">
+  qh.modules([ // Assumes module folders are in 'module'.
+    "application", // Assumes a module.js file is in 'application' folder. If this doesn't work, it will 
+      // complain in the console in shining red letters so that the dev knows how to fix the problem.
+    "other-module",
+  ]);
+  qh.modules("other-folder-of-modules", [
+    "some-module"
+  ]);
+  qh.modules({
+    src: "path/to/modules/list.json", // Could be a string or an array. This will obviously be slower.
+    list: {
+      "module": [
+        "application",
+        "other-module"
+      ],
+      "other-folder-of-modules": [
+        "some-module"
+      ],
+    },
+  });
+  
+</script>
 
 module/application/module.js:
 qh.setModule("other-module", {
