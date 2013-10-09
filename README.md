@@ -28,8 +28,8 @@ module:
 other-folder-of-modules
 
 index.html:
-<script type="text/javascript" src="vendor/quadrahedron/quadrahedron.js"></script>
-<script type="text/javascript">
+&lt;script type="text/javascript" src="vendor/quadrahedron/quadrahedron.js"&gt;&lt;/script&gt;
+&lt;script type="text/javascript"&gt;
   qh.modules([ // Assumes module folders are in 'module'.
     "application", // Assumes a module.js file is in 'application' folder. If this doesn't work, it will 
       // complain in the console in shining red letters so that the dev knows how to fix the problem.
