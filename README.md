@@ -30,14 +30,28 @@ other-folder-of-modules
 index.html:
 &lt;script type="text/javascript" src="vendor/quadrahedron/quadrahedron.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
-  qh.modules([ // Assumes module folders are in 'module'.
+  // Requirejs would be well used to run any other requires once this has completed, and then run the 
+  // given angular scripts.
+  qh.angular("path/to/angular.js");
+  
+  // An array interprets a list of modules in the 'module' folder.
+  qh.modules([
     "application", // Assumes a module.js file is in 'application' folder. If this doesn't work, it will 
       // complain in the console in shining red letters so that the dev knows how to fix the problem.
     "other-module",
   ]);
+  
+  // A string with an array interprets a list of modules in a folder named after the given string.
   qh.modules("other-folder-of-modules", [
     "some-module"
   ]);
+  
+  // A string on its own indicates a path to a json list of modules.
+  qh.modules("path/to/modules/list.json");
+  // JSON will be in the list format in the example given below, as though specific module folders exist,
+  // or as an array assuming all modules are stored in 'module'.
+  
+  // An object can be submitted in the following format.
   qh.modules({
     src: "path/to/modules/list.json", // Could be a string or an array. This will obviously be slower.
     list: {
