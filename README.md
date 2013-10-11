@@ -1,3 +1,5 @@
+<pre>
+
 quadrahedron
 ============
 
@@ -91,3 +93,5 @@ qh.getModule("other-module")
 .directive("wideView", function() {
   // Angular directive stuff
 });
+
+</pre>
