@@ -6,6 +6,8 @@ var quadrahedron = {};
 var qh = quadrahedron;
 
 qh.loadLib = function(a) {
+	// We're ignoring this for now, letting the user take care of their own library loading. It seems to be much effort to avoid writing two script tags.
+
 	// Loads a path or array of paths indicating the locations of necessary libraries.
 	var paths = a;
 	if (typeof a === 'string') {paths = [a];}
@@ -13,12 +15,15 @@ qh.loadLib = function(a) {
 		// Perhaps once all loaded (qh.checkList({silent:true}) returns true), run all modules.
 		// This sounds as though it should be prompted from a separate function, if the user 
 		// decides they want to load the libs with their own functions.
+		qh.loader.load();
 	});
 
 };
 
 qh.getType = function(a) {
-	if (jQuery.isArray(a)) {return "array";}
+	var what = Object.prototype.toString;
+	//if (jQuery.isArray(a)) {return "array";}
+	if (what.call([])=="[object Array]") {return "array";}
 	if (jQuery.isPlainObject(a)) {return "object";}
 	if (typeof a === 'string') {return "string";}
 	
@@ -38,13 +43,13 @@ qh.checkList = function(args) {
 	// Run a bunch of tests to give the dev feedback.
 
 	var tests = {
-		requirejs: function() {return requirejs;},
-		jQuery: function() {return jQuery;},
-		angular: function() {return angular;},
+		requirejs: function() {return !(typeof(requirejs)=="undefined");},
+		jQuery: function() {return !(typeof(jQuery)=="undefined");},
+		angular: function() {return !(typeof(angular)=="undefined");},
 	};
 	var success = true;
 	for(var testName in tests) {
-		var test = tests[i];
+		var test = tests[testName];
 		var testSuccess = test();
 		var msg = "FAILED";
 		var fnc = "error";
@@ -61,10 +66,6 @@ qh.checkList = function(args) {
 };
 
 qh.modules = function(a, b) {
-	if (!qh.checkList({silent:true})) {
-		throw "Missing one or more required packages. Run 'qh.checkList()' for more information.";
-	}
-
 	// Check type.
 	var ml = qh.moduleLoader;
 	switch(qh.getType(a)) {
@@ -87,7 +88,28 @@ qh.modules = function(a, b) {
 			ml.loadModulesByArray(a);
 		} break;
 	}
+	qh.loader.load();
 };
+
+qh.loader = (function() {
+	var ldr = {};
+	ldr.addPath = function(path) {ldr.paths.push(path);};
+	ldr.loaded = false;
+	ldr.paths = [];
+	ldr.readyFunctions = [];
+	ldr.load = function() {
+		if (qh.checkList({silent:true})) {
+			requirejs(ldr.paths, function() {
+				ldr.loaded = true;
+				angular.forEach(ldr.readyFunctions, function(fnc) {
+					// Arguments could go into this function.
+					fnc();
+				});
+			});
+		}
+	};
+	return ldr;
+}());
 
 qh.moduleLoader = (function() {
 	// Module loader currently kicks off loading of modules. It may be worth creating a 
@@ -115,16 +137,48 @@ qh.moduleLoader = (function() {
 	ml.loadModuleList = function(moduleListPath) {
 		// Ajax in the json file. Interpret the json file. Get a list of modules.
 		jQuery.getJSON(moduleListPath, function(a,b,c,d) {
-			ml.loadModuleConfig(response);
+			//ml.loadModuleConfig(response);
+			//qh.loader.addPath(path+"/"+moduleName+"/"+module.js);
 		});
 	};
 	ml.loadModulesInPath = function(path, moduleNames) {
-		angular.forEach(moduleNames, function(moduleName) {
+		for(var i in moduleNames) {
+			var moduleName = moduleNames[i];
 			// Load [path]/[moduleName]/module.js
-		});
+			qh.loader.addPath(path+"/"+moduleName+"/module.js");
+		};
 	};
 	ml.loadModulesByArray = function(moduleNames) {
 		return ml.loadModulesInPath('module', moduleNames);
 	};
+	ml.loadModuleComponent = function() {
+		
+	};
 	return ml;
 }());
+
+// qh.ready = function(fnc) {qh.loader.readyFunctions.push(fnc);};
+
+qh.moduleManager = (function() {
+	var man = {};
+	man.qhModules = {};
+	man.angularModules = {};
+	man.setModule = function(name, config) {
+		// Load component files as a requirejs array
+		var childModules = [];
+		var paths = [];
+		jQuery.each(config, function(componentType, components) {
+			childModules.push(components);
+			paths.push(qh.moduleLoader.getPath(name));
+		});
+		man.angularModules[name] = angular.module(name, childModules);
+		requirejs(childModules);
+	};
+	return man;
+}());
+qh.setModule = function(name, config) {
+	qh.moduleManager.setModule(name, config);
+};
+qh.getModule = function(name) {
+	return qh.moduleManager.angularModules[name];
+};
