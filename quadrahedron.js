@@ -21,6 +21,12 @@ qh.getType = function(a) {
 	if (jQuery.isArray(a)) {return "array";}
 	if (jQuery.isPlainObject(a)) {return "object";}
 	if (typeof a === 'string') {return "string";}
+	
+	// Might be better to use this snippet:
+	//var what = Object.prototype.toString;
+	//alert(what.call(new Date()));   // "[object Date]" 
+	//alert(what.call(function(){})); // "[object Function]" 
+	//alert(what.call([]));           // "[object Array]"
 };
 
 qh.checkList = function(args) {
