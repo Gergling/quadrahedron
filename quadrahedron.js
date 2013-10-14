@@ -51,14 +51,10 @@ qh.checkList = function(args) {
 };
 
 qh.modules = function(a, b) {
-	// Fire all of these once setup has completed loading items.
-	// Check for requirejs or send exception.
-	if (!requirejs) {throw "No sign of requirejs. Quadrahedron uses this to load javascript files.";}
-	// Check for jquery or send exception.
-	if (!jQuery) {throw "No sign of jQuery. This is used for json and looping.";}
-	// Check for angularjs or send exception.
-	if (!angular) {throw "No sign of angular. This is used for pretty much everything.";}
-	
+	if (!qh.checkList({silent:true})) {
+		throw "Missing one or more required packages. Run 'qh.checkList()' for more information.";
+	}
+
 	// Check type.
 	var ml = qh.moduleLoader;
 	switch(type(a)) {
@@ -84,6 +80,9 @@ qh.modules = function(a, b) {
 };
 
 qh.moduleLoader = (function() {
+	// Module loader currently kicks off loading of modules. It may be worth creating a 
+	// list of items to load, and kick off everything once dependencies have loaded.
+	// Best test for race conditions first until they become an issue.
 	var ml = {};
 	ml.loadModuleConfig = function(moduleConfig) {
 		var c = moduleConfig;
