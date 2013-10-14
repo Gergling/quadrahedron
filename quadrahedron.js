@@ -8,15 +8,19 @@ var qh = quadrahedron;
 qh.loadLib = function(a) {
 	// Loads a path or array of paths indicating the locations of necessary libraries.
 	var paths = a;
-	if (typeof a === 'string') {
-		paths = [a];
-	}
+	if (typeof a === 'string') {paths = [a];}
 	requirejs(paths, function() {
 		// Perhaps once all loaded (qh.checkList({silent:true}) returns true), run all modules.
 		// This sounds as though it should be prompted from a separate function, if the user 
 		// decides they want to load the libs with their own functions.
 	});
 
+};
+
+qh.getType = function(a) {
+	if (jQuery.isArray(a)) {return "array";}
+	if (jQuery.isPlainObject(a)) {return "object";}
+	if (typeof a === 'string') {return "string";}
 };
 
 qh.checkList = function(args) {
@@ -57,7 +61,7 @@ qh.modules = function(a, b) {
 
 	// Check type.
 	var ml = qh.moduleLoader;
-	switch(type(a)) {
+	switch(qh.getType(a)) {
 		case "string": {
 			// This is either a path to a list of modules in JSON or a path containing the modules.
 			if (b) {
@@ -90,8 +94,7 @@ qh.moduleLoader = (function() {
 			ml.loadModuleList(c.src);
 		}
 		if (c.list) {
-			// Establish the type
-			switch(type) {
+			switch(qh.getType(c.list)) {
 				case "array": {
 					ml.loadModulesByArray(c.list);
 				} break;
