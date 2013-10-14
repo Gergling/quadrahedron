@@ -5,18 +5,59 @@
 var quadrahedron = {};
 var qh = quadrahedron;
 
-qh.setup = function(config) {
-	// Perhaps allow for config to be a path to a json file or an array of paths.
-	if (config.angular) {}
-	if (config.require) {}
-	if (config.jquery) {}
+qh.loadLib = function(a) {
+	// Loads a path or array of paths indicating the locations of necessary libraries.
+	var paths = a;
+	if (typeof a === 'string') {
+		paths = [a];
+	}
+	requirejs(paths, function() {
+		// Perhaps once all loaded (qh.checkList({silent:true}) returns true), run all modules.
+		// This sounds as though it should be prompted from a separate function, if the user 
+		// decides they want to load the libs with their own functions.
+	});
+
+};
+
+qh.checkList = function(args) {
+	var def = function(arg, defaultValue) {args[arg] = args[arg] || defaultValue;};
+	var args = args || {};
+	def("verbose", false);
+	def("silent", false);
+
+	// Run a bunch of tests to give the dev feedback.
+
+	var tests = {
+		requirejs: function() {return requirejs;},
+		jQuery: function() {return jQuery;},
+		angular: function() {return angular;},
+	};
+	var success = true;
+	for(var testName in tests) {
+		var test = tests[i];
+		var testSuccess = test();
+		var msg = "FAILED";
+		var fnc = "error";
+		if (testSuccess) {
+			msg = "Success";
+			fnc = "log";
+		} else {
+			success = false;
+		}
+		if ((args.verbose || !testSuccess) && !args.silent) {console[fnc]("Checking", testName, ":", msg);}
+	}
+
+	return success;
 };
 
 qh.modules = function(a, b) {
 	// Fire all of these once setup has completed loading items.
 	// Check for requirejs or send exception.
+	if (!requirejs) {throw "No sign of requirejs. Quadrahedron uses this to load javascript files.";}
 	// Check for jquery or send exception.
+	if (!jQuery) {throw "No sign of jQuery. This is used for json and looping.";}
 	// Check for angularjs or send exception.
+	if (!angular) {throw "No sign of angular. This is used for pretty much everything.";}
 	
 	// Check type.
 	var ml = qh.moduleLoader;
@@ -65,7 +106,7 @@ qh.moduleLoader = (function() {
 	};
 	ml.loadModuleList = function(moduleListPath) {
 		// Ajax in the json file. Interpret the json file. Get a list of modules.
-		$.getJSON(moduleListPath, function(a,b,c,d) {
+		jQuery.getJSON(moduleListPath, function(a,b,c,d) {
 			ml.loadModuleConfig(response);
 		});
 	};
