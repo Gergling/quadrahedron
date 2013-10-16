@@ -5,6 +5,8 @@
 var quadrahedron = {};
 var qh = quadrahedron;
 
+// Probably need a 'setup' function to load base libraries and jquery for app directive from one object, or multiple arguments.
+	
 qh.loadLib = function(a) {
 	// We're ignoring this for now, letting the user take care of their own library loading. It seems to be much effort to avoid writing two script tags.
 
@@ -12,6 +14,7 @@ qh.loadLib = function(a) {
 	var paths = a;
 	if (typeof a === 'string') {paths = [a];}
 	requirejs(paths, function() {
+		console.log('loadLib complete');
 		// Perhaps once all loaded (qh.checkList({silent:true}) returns true), run all modules.
 		// This sounds as though it should be prompted from a separate function, if the user 
 		// decides they want to load the libs with their own functions.
@@ -73,7 +76,7 @@ qh.modules = function(a, b) {
 			// This is either a path to a list of modules in JSON or a path containing the modules.
 			if (b) {
 				// a is a module folder path, b is the list of modules. An array is expected for b.
-				ml.loadModulesInPath(a, b);
+				ml.loadModulesInPath(b, a);
 			} else {
 				// a is a path to a json file containing the list of modules.
 				ml.loadModuleList(a);
@@ -91,6 +94,8 @@ qh.modules = function(a, b) {
 	qh.loader.load();
 };
 
+qh.app = function(getAppElement) {qh.moduleManager.app.getAppElement = getAppElement;}
+
 qh.loader = (function() {
 	var ldr = {};
 	ldr.addPath = function(path) {ldr.paths.push(path);};
@@ -98,12 +103,26 @@ qh.loader = (function() {
 	ldr.paths = [];
 	ldr.readyFunctions = [];
 	ldr.load = function() {
+		// We cannot load anything until we have the basic software loaded.
 		if (qh.checkList({silent:true})) {
-			requirejs(ldr.paths, function() {
-				ldr.loaded = true;
-				angular.forEach(ldr.readyFunctions, function(fnc) {
-					// Arguments could go into this function.
-					fnc();
+			// The getAppDirective function will return a jQuery object, so we need to be certain that the DOM is fully loaded.
+			$(function() {
+				// All angular module path files will now be loaded.
+				requirejs(ldr.paths, function() {
+					ldr.loaded = true;
+					// Once all the angular module files are loaded, we can bootstrap angular.
+					
+					angular.bootstrap(
+						qh.moduleManager.app.getAppElement(), 
+						qh.moduleManager.app.modules
+					);
+
+					// We now have the option to run a custom 'ready' function once everything else is complete, 
+					// but I have no use for this yet so I doubt it's working.
+					angular.forEach(ldr.readyFunctions, function(fnc) {
+						// Arguments could go into this function.
+						fnc();
+					});
 				});
 			});
 		}
@@ -141,15 +160,16 @@ qh.moduleLoader = (function() {
 			//qh.loader.addPath(path+"/"+moduleName+"/"+module.js);
 		});
 	};
-	ml.loadModulesInPath = function(path, moduleNames) {
+	ml.loadModulesInPath = function(moduleNames, path) {
 		for(var i in moduleNames) {
 			var moduleName = moduleNames[i];
 			// Load [path]/[moduleName]/module.js
-			qh.loader.addPath(path+"/"+moduleName+"/module.js");
+			var qhModule = qh.moduleManager.qhModules.add(moduleName, path);
+			qh.loader.addPath(qhModule.getPath()+"/module.js");
 		};
 	};
 	ml.loadModulesByArray = function(moduleNames) {
-		return ml.loadModulesInPath('module', moduleNames);
+		return ml.loadModulesInPath(moduleNames);
 	};
 	ml.loadModuleComponent = function() {
 		
@@ -161,17 +181,51 @@ qh.moduleLoader = (function() {
 
 qh.moduleManager = (function() {
 	var man = {};
-	man.qhModules = {};
+	man.qhModules = (function() {
+		var qhm = {};
+		qhm.qhModule = function(name, basePath) {
+			var _this = this;
+			_this.name = name;
+			_this.basePath = basePath || "module";
+			_this.getPath = function() {
+				return _this.basePath+"/"+_this.name;
+			};
+		};
+		qhm.list = {};
+		qhm.add = function(name, basePath) {
+			qhm.list[name] = new qhm.qhModule(name, basePath);
+			return qhm.get(name);
+		};
+		qhm.get = function(name) {
+			var got = qhm.list[name];
+			if (!got) {throw "Attempted to get module '"+name+"' which doesn't exist.";}
+			return got;
+		};
+		
+		return qhm;
+	}());
+	man.app = {modules:[]}; // Only supports one app directive for now.
 	man.angularModules = {};
 	man.setModule = function(name, config) {
 		// Load component files as a requirejs array
 		var childModules = [];
 		var paths = [];
-		jQuery.each(config, function(componentType, components) {
-			childModules.push(components);
-			paths.push(qh.moduleLoader.getPath(name));
+		jQuery.each(config, function(componentType, a) {
+			switch(componentType) {
+				case "app": {
+					// Special case, do nothing.
+				} break;
+				default: {
+					var components = a;
+					childModules.push(components);
+					paths.push(man.qhModules.get(name).getPath());
+				} break;
+			}
 		});
 		man.angularModules[name] = angular.module(name, childModules);
+		if (config.app) {man.app.modules.push(name);}
+		//window[name] = man.angularModules[name];
+		//console.log(name);
 		requirejs(childModules);
 	};
 	return man;
