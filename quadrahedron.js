@@ -14,7 +14,6 @@ qh.loadLib = function(a) {
 	var paths = a;
 	if (typeof a === 'string') {paths = [a];}
 	requirejs(paths, function() {
-		console.log('loadLib complete');
 		// Perhaps once all loaded (qh.checkList({silent:true}) returns true), run all modules.
 		// This sounds as though it should be prompted from a separate function, if the user 
 		// decides they want to load the libs with their own functions.
@@ -268,7 +267,7 @@ qh.moduleManager = (function() {
 				case "app": {
 					// Special case, do nothing.
 				} break;
-				case "requires": {
+				case "require": {
 					requiredModules = a;
 				} break;
 				default: {
@@ -277,7 +276,7 @@ qh.moduleManager = (function() {
 						var component = qhModule.addComponent(componentType, componentName);
 						//var component = qhModule.getComponent(componentType, componentName);
 						childModules.push(component.getFullName());
-						qh.loader.addPath(component.getPath());
+						//qh.loader.addPath(component.getPath());
 					});
 					//paths.push(man.qhModules.get(name).getPath());
 				} break;
