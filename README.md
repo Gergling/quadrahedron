@@ -130,7 +130,7 @@ qh.app(function() {return document;});
 
 </pre>
 
-Finally, we specify the modules. Without an app element, jquery, and angular the module specification will
+We now need to specify the modules. Without an app element, jquery, and angular the module specification will
 simply fail (check the browser console for errors). Those will need to happen first. By specifying the modules, 
 we are saying it's ok to load everything. This function can only be run once at present, and in the future it 
 is planned that it will be able to accept a module path to contain specified modules, and have the option of a
@@ -181,3 +181,20 @@ qh.setModule("fancy-module", {
 });
 
 </pre>
+
+Module Components
+-----------------
+
+Finally, we need to get the actual angular code running. In this example, I specify an angular factory:
+
+<pre>
+
+qh.getModule('fancy-module').factory("fancy-module.factory.fancy-factory", ["$rootScope", function ($rootScope) {
+	return {"fancy-value": 12};
+}]);
+
+</pre>
+
+'getModule' simply returns the angular module object.
+
+My choice of component naming convention is a personal preference, but not necessary to run QH.
