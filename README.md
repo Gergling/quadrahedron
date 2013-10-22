@@ -197,4 +197,5 @@ qh.getModule('fancy-module').factory("fancy-module.factory.fancy-factory", ["$ro
 
 'getModule' simply returns the angular module object.
 
-My choice of component naming convention is a personal preference, but not necessary to run QH.
+My choice of component naming convention is a personal preference, but not necessary to run QH. That said, QH does
+store component meta-data by this naming convention.
