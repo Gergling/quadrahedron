@@ -5,11 +5,25 @@ Quadrahedron is designed to set up a predictable modular code file structure for
 
 The developer will choose locations for the angular component files and indicate to quadrahedron where they will be.
 
-An expected default folder structure:
+Required Frameworks
+-------------------
 
 <ul>
-  <li>index.html</li>
-  <li>module - if not specified, QH will assume all modules are in this folder.
+  <li>requirejs</li>
+  <li>angularjs</li>
+  <li>jQuery</li>
+</ul>
+
+Folder Structure
+----------------
+
+While flexible, QH expects certain things from the code folder structure. In my example I have assumed that index.html 
+and adjacent files are at the root directory.
+
+<ul>
+  <li>index.html - it is assumed that you have a starting html page of some kind. In this case, we are using a 
+  simple html file.</li>
+  <li>module - QH will assume all modules are in this folder. There are plans to allow for more flexibility later on.
     <ul>
       <li>application - I like using an 'application' module for application-specific code, but if specified, 
         any module name can be used.
@@ -61,29 +75,6 @@ An expected default folder structure:
       </li>
     </ul>
   </li>
-  <li>dev-packages - this folder will contain more modules to demonstrate how one might include modules in other 
-  folders.
-    <ul>
-      <li>included-package1
-        <ul>
-          <li>useful-module
-            <ul>
-              <li>module.js</li>
-              <li>... various components...</li>
-            </ul>
-          </li>
-          <li>another-useful-module
-            <ul>
-              <li>module.js</li>
-              <li>... various components...</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li>included-package2</li>
-      <li>ignored-package</li>
-    </ul>
-  </li>
   <li>vendor - in my example the vendor file is only referenced from index.html (not QH itself), so the 
   contents of this folder could be anything, as long as quadrahedron is loaded from somewhere.
     <ul>
@@ -92,75 +83,101 @@ An expected default folder structure:
           <li>quadrahedron.js</li>
         </ul>
       </li>
+      <li>requirejs
+        <ul>
+          <li>requirejs.js</li>
+        </ul>
+      </li>
+      <li>jQuery
+        <ul>
+          <li>jQuery.js</li>
+        </ul>
+      </li>
+      <li>angularjs
+        <ul>
+          <li>angularjs.js</li>
+        </ul>
+      </li>
     </ul>
   </li>
 </ul>
 
+Setup
+-----
+
+Now we need to tell QH what to look for.
+
+We need to specify where jQuery and angularjs are. We can do this using script tags, but if slow loading 
+times and race conditions are a concern, QH uses requirejs to ensure everything is loaded after their required
+items are loaded.
+
+In our example, we would find this in the index.html file before the modules are specified:
+
 <pre>
 
-index.html:
-&lt;script type="text/javascript" src="vendor/quadrahedron/quadrahedron.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript"&gt;
-  // Requirejs would be well used to run any other requires once this has completed, and then run the 
-  // given angular scripts.
-  qh.angular("path/to/angular.js");
-  
-  // An array interprets a list of modules in the 'module' folder.
-  qh.modules([
-    "application", // Assumes a module.js file is in 'application' folder. If this doesn't work, it will 
-      // complain in the console in shining red letters so that the dev knows how to fix the problem.
-    "other-module",
-  ]);
-  
-  // A string with an array interprets a list of modules in a folder named after the given string.
-  qh.modules("other-folder-of-modules", [
-    "some-module"
-  ]);
-  
-  // A string on its own indicates a path to a json list of modules.
-  qh.modules("path/to/modules/list.json");
-  // JSON will be in the list format in the example given below, as though specific module folders exist,
-  // or as an array assuming all modules are stored in 'module'.
-  
-  // An object can be submitted in the following format.
-  qh.modules({
-    src: "path/to/modules/list.json", // Could be a string or an array. This will obviously be slower.
-    list: {
-      "module": [
-        "application",
-        "other-module"
-      ],
-      "other-folder-of-modules": [
-        "some-module"
-      ],
-    },
-  });
-  
-</script>
+qh.loadLib([
+  "vendor/jQuery/jQuery.js",
+  "vendor/angularjs/angularjs.js"
+]);
 
-module/application/module.js:
-qh.setModule("other-module", {
-  // Follows component names
-  directive: [
-    "wideView", // Refers to 'wideView.js' in the directive folder. The html will be "<data-wide-view/> 
-      // or <ANY data-wide-view>" depending on the directive configuration.
-    "narrowView", // Refers to 'narrowView.js' in the directive folder.
-  ],
+</pre>
+
+We also need to choose an app element before the modules are specified. In this case, I'm just using 'document';
+
+<pre>
+
+qh.app(function() {return document;});
+
+</pre>
+
+Finally, we specify the modules. Without an app element, jquery, and angular the module specification will
+simply fail (check the browser console for errors). Those will need to happen first. By specifying the modules, 
+we are saying it's ok to load everything. This function can only be run once at present, and in the future it 
+is planned that it will be able to accept a module path to contain specified modules, and have the option of a
+separate bootstrap function if necessary (once everything is loaded, QH runs angular bootstrap). There are also
+plans to allow this to reference a JSON file containing the list of modules, for people who want to minimise 
+their interaction with the equivalent index.html file.
+
+<pre>
+
+qh.modules([
+	"application",
+	"fancy-module",
+]);
+
+</pre>
+
+module.js
+---------
+
+Every module folder has a 'module.js' file. QH will fail without it. It is expected to contain the following:
+
+<pre>
+
+qh.setModule("application", {
   factory: [
-  ],
-  controller: [
-  ],
-  "other-stuff": [
+    "navigation.js"
+    "some-list.js"
   ],
 });
 
-// All files given above will be listed against a requirejs function and loaded.
+</pre>
 
-// Usage (e.g. wideView.js):
+Another module.js example for the 'fancy-module' module.
 
-qh.getModule("other-module")
-.directive("wideView", function() {
-  // Angular directive stuff
+<pre>
+
+qh.setModule("fancy-module", {
+  factory: [
+    "fancy-factory.js"
+  ],
+  controller: [
+    "index.js"
+  ],
+  directive: [
+    "fancy-widget1.js",
+    "fancy-widget2.js"
+  ],
 });
 
 </pre>
