@@ -155,9 +155,16 @@ Every module folder has a 'module.js' file. QH will fail without it. It is expec
 <pre>
 
 qh.setModule("application", {
+	app: true, // This module is referenced against the app element when bootstrap fires.
+	// A list of required modules is currently needed for the module to be setup. 
+	// In the future I intend to look for ways to streamline this.
+	require: [
+		"fancy-module"
+	],
+	// This specifies the folder 'factory' and the files within are expected to be '.js' files.
   factory: [
-    "navigation.js"
-    "some-list.js"
+    "navigation"
+    "some-list"
   ],
 });
 
