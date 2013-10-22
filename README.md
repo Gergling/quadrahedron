@@ -21,14 +21,14 @@ While flexible, QH expects certain things from the code folder structure. In my 
 and adjacent files are at the root directory.
 
 <ul>
-  <li>index.html - it is assumed that you have a starting html page of some kind. In this case, we are using a 
+  <li><a href="#setup">index.html</a> - it is assumed that you have a starting html page of some kind. In this case, we are using a 
   simple html file.</li>
   <li>module - QH will assume all modules are in this folder. There are plans to allow for more flexibility later on.
     <ul>
       <li>application - I like using an 'application' module for application-specific code, but if specified, 
         any module name can be used.
         <ul>
-          <li>module.js - if 'application' is given as a module, this file will be expected in the folder. Example 
+          <li><a href="#module.js">module.js</a> - if 'application' is given as a module, this file will be expected in the folder. Example 
             contents are given further down.</li>
           <li>factory - if we assume all application-wide factories go in here, we can list this folder and all
             component files inside module.js.
@@ -51,7 +51,7 @@ and adjacent files are at the root directory.
           <li>module.js</li>
           <li>factory
             <ul>
-              <li>fancy-factory.js</li>
+              <li><a href="#module-components">fancy-factory.js</a></li>
             </ul>
           </li>
           <li>controller
