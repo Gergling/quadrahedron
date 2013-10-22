@@ -28,7 +28,7 @@ and adjacent files are at the root directory.
       <li>application - I like using an 'application' module for application-specific code, but if specified, 
         any module name can be used.
         <ul>
-          <li><a href="#module.js">module.js</a> - if 'application' is given as a module, this file will be expected in the folder. Example 
+          <li><a href="#modulejs">module.js</a> - if 'application' is given as a module, this file will be expected in the folder. Example 
             contents are given further down.</li>
           <li>factory - if we assume all application-wide factories go in here, we can list this folder and all
             component files inside module.js.
