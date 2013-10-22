@@ -274,9 +274,7 @@ qh.moduleManager = (function() {
 					var components = a;
 					angular.forEach(components, function(componentName) {
 						var component = qhModule.addComponent(componentType, componentName);
-						//var component = qhModule.getComponent(componentType, componentName);
-						childModules.push(component.getFullName());
-						//qh.loader.addPath(component.getPath());
+						//childModules.push(component.getFullName());
 					});
 					//paths.push(man.qhModules.get(name).getPath());
 				} break;
