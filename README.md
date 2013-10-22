@@ -1,33 +1,102 @@
-<pre>
-
 quadrahedron
 ============
 
-The idea of this framework will be to help set up angularjs projects in a predictable modular style. 
-The developer can then list module names and module components, and the software will work out where 
-the files are going to be to load them in. Requirejs would likely be involved.
+Quadrahedron is designed to set up a predictable modular code file structure for angular-based apps.
 
-I have included some sample usage below.
+The developer will choose locations for the angular component files and indicate to quadrahedron where they will be.
 
-Expected folder structure:
-index.html
-vendor:
-  quadrahedron:
-    quadrahedron.js
-module:
-  application:
-    module.js
-    directive
-    factory
-    controller
-    partial
-    image
-    css
-    other-stuff
-  other-module
-    module.js
-    etc...
-other-folder-of-modules
+An expected default folder structure:
+
+<ul>
+  <li>index.html</li>
+  <li>module - if not specified, QH will assume all modules are in this folder.
+    <ul>
+      <li>application - I like using an 'application' module for application-specific code, but if specified, 
+        any module name can be used.
+        <ul>
+          <li>module.js - if 'application' is given as a module, this file will be expected in the folder. Example 
+            contents are given further down.</li>
+          <li>factory - if we assume all application-wide factories go in here, we can list this folder and all
+            component files inside module.js.
+            <ul>
+              <li>navigation.js - maybe you would like to put your primary links here. If so, you can specify that
+              this file exists, and it will be loaded with the rest of the module. An example of a component file is 
+              given further down.</li>
+              <li>some-list.js - who knows what factories one might need?</li>
+            </ul>
+          </li>
+          <li>partial - angular uses partials, but you would not specify this folder as an angular component.
+            <ul>
+              <li>navigation-primary.js</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>fancy-module - another module example
+        <ul>
+          <li>module.js</li>
+          <li>factory
+            <ul>
+              <li>fancy-factory.js</li>
+            </ul>
+          </li>
+          <li>controller
+            <ul>
+              <li>index.js</li>
+            </ul>
+          </li>
+          <li>directive
+            <ul>
+              <li>fancy-widget1.js</li>
+              <li>fancy-widget2.js</li>
+            </ul>
+          </li>
+          <li>partial
+            <ul>
+              <li>fancy-widget1.html</li>
+              <li>fancy-widget2.html</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>dev-packages - this folder will contain more modules to demonstrate how one might include modules in other 
+  folders.
+    <ul>
+      <li>included-package1
+        <ul>
+          <li>useful-module
+            <ul>
+              <li>module.js</li>
+              <li>... various components...</li>
+            </ul>
+          </li>
+          <li>another-useful-module
+            <ul>
+              <li>module.js</li>
+              <li>... various components...</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>included-package2</li>
+      <li>ignored-package</li>
+    </ul>
+  </li>
+  <li>vendor - in my example the vendor file is only referenced from index.html (not QH itself), so the 
+  contents of this folder could be anything, as long as quadrahedron is loaded from somewhere.
+    <ul>
+      <li>quadrahedron
+        <ul>
+          <li>quadrahedron.js</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<pre>
 
 index.html:
 &lt;script type="text/javascript" src="vendor/quadrahedron/quadrahedron.js"&gt;&lt;/script&gt;
