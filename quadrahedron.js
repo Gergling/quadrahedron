@@ -94,6 +94,7 @@ qh.modules = function(a, b) {
 };
 
 qh.app = function(getAppElement) {qh.moduleManager.app.getAppElement = getAppElement;}
+qh.preloader = function(getPreloaderElement) {qh.loader.getPreloaderElement = getPreloaderElement;}
 
 qh.loader = (function() {
 	var ldr = {};
@@ -101,6 +102,7 @@ qh.loader = (function() {
 	ldr.loaded = false;
 	ldr.paths = [];
 	ldr.readyFunctions = [];
+	ldr.getPreloaderElement = function() {};
 	ldr.load = function() {
 		// We cannot load anything until we have the basic software loaded.
 		if (qh.checkList({silent:true})) {
@@ -115,6 +117,7 @@ qh.loader = (function() {
 						// Once all the angular module files are loaded, we can bootstrap angular.
 						// Bootstrap will need to be run once a checklist of modules and their components is complete.
 						angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
+						$(ldr.getPreloaderElement()).hide();
 
 						// We now have the option to run a custom 'ready' function once everything else is complete, 
 						// but I have no use for this yet so I doubt it's working.
