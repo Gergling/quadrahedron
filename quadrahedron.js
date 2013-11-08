@@ -25,9 +25,9 @@ qh.loadLib = function(a) {
 qh.getType = function(a) {
 	var what = Object.prototype.toString;
 	//if (jQuery.isArray(a)) {return "array";}
-	if (what.call([])=="[object Array]") {return "array";}
 	if (jQuery.isPlainObject(a)) {return "object";}
 	if (typeof a === 'string') {return "string";}
+	if (what.call([])=="[object Array]") {return "array";}
 	
 	// Might be better to use this snippet:
 	//var what = Object.prototype.toString;
@@ -48,6 +48,7 @@ qh.checkList = function(args) {
 		requirejs: function() {return !(typeof(requirejs)=="undefined");},
 		jQuery: function() {return !(typeof(jQuery)=="undefined");},
 		angular: function() {return !(typeof(angular)=="undefined");},
+		moduleCount: function() {return qh.moduleManager.qhModules.getPaths("module").length;},
 	};
 	var success = true;
 	for(var testName in tests) {
@@ -98,9 +99,9 @@ qh.preloader = function(getPreloaderElement) {qh.loader.getPreloaderElement = ge
 
 qh.loader = (function() {
 	var ldr = {};
-	ldr.addPath = function(path) {console.log("Adding path", path);ldr.paths.push(path);};
+	//ldr.addPath = function(path) {console.log("Adding path", path);ldr.paths.push(path);};
 	ldr.loaded = false;
-	ldr.paths = [];
+	//ldr.paths = [];
 	ldr.readyFunctions = [];
 	ldr.getPreloaderElement = function() {};
 	ldr.load = function() {
@@ -116,15 +117,19 @@ qh.loader = (function() {
 						ldr.loaded = true;
 						// Once all the angular module files are loaded, we can bootstrap angular.
 						// Bootstrap will need to be run once a checklist of modules and their components is complete.
-						angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
-						$(ldr.getPreloaderElement()).hide();
+						if (qh.moduleManager.app.modules.length) {
+							angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
+							$(ldr.getPreloaderElement()).hide();
 
-						// We now have the option to run a custom 'ready' function once everything else is complete, 
-						// but I have no use for this yet so I doubt it's working.
-						angular.forEach(ldr.readyFunctions, function(fnc) {
-							// Arguments could go into this function.
-							fnc();
-						});
+							// We now have the option to run a custom 'ready' function once everything else is complete, 
+							// but I have no use for this yet so I doubt it's working.
+							angular.forEach(ldr.readyFunctions, function(fnc) {
+								// Arguments could go into this function.
+								fnc();
+							});
+						} else {
+							throw "No app element is set. A module must have a configuration property 'app' set to 'true'.";
+						}
 					});
 				});
 			});
@@ -140,42 +145,44 @@ qh.moduleLoader = (function() {
 	var ml = {};
 	ml.loadModuleConfig = function(moduleConfig) {
 		var c = moduleConfig;
+		var basePath = c.basePath || "";
 		if (c.src) {
 			ml.loadModuleList(c.src);
 		}
 		if (c.list) {
 			switch(qh.getType(c.list)) {
 				case "array": {
-					ml.loadModulesByArray(c.list);
+					ml.loadModulesInPath(c.list, basePath);
 				} break;
 				case "object": {
-					angular.forEach(c.list, function(moduleList) {
-						ml.loadModulesByArray(moduleList);
-					});
+					//$.each(c.list, function(moduleList) {
+						//ml.loadModulesInPath(moduleList, path);
+					//});
+					console.error("Loading config objects is not supported yet");
 				} break;
 			}
 		}
 	};
 	ml.loadModuleList = function(moduleListPath) {
 		// Ajax in the json file. Interpret the json file. Get a list of modules.
-		jQuery.getJSON(moduleListPath, function(a,b,c,d) {
-			//ml.loadModuleConfig(response);
-			//qh.loader.addPath(path+"/"+moduleName+"/"+module.js);
+		jQuery.getJSON(moduleListPath, function(response,status,jqxhr) {
+			ml.loadModuleConfig(response);
+			qh.loader.load();
+		}).fail(function() {
+			throw "Module listing JSON at "+moduleListPath+" is invalid.";
 		});
 	};
 	ml.loadModulesInPath = function(moduleNames, path) {
 		for(var i in moduleNames) {
 			var moduleName = moduleNames[i];
-			// Load [path]/[moduleName]/module.js
 			var qhModule = qh.moduleManager.qhModules.add(moduleName, path);
-			//qh.loader.addPath(qhModule.getPath()+"/module.js");
 		};
 	};
 	ml.loadModulesByArray = function(moduleNames) {
 		return ml.loadModulesInPath(moduleNames);
 	};
 	ml.loadModuleComponent = function() {
-		
+		console.error("Should there really be module components loaded from here.");
 	};
 	return ml;
 }());
@@ -257,7 +264,7 @@ qh.moduleManager = (function() {
 		};
 		return qhm;
 	}());
-	man.app = {modules:[]}; // Only supports one app directive for now.
+	man.app = {getAppElement: function() {}, modules:[]}; // Only supports one app directive for now.
 	man.angularModules = {};
 	man.setModule = function(name, config) {
 		// Load component files as a requirejs array
