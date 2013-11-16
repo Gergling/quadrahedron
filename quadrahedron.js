@@ -304,3 +304,6 @@ qh.setModule = function(name, config) {
 qh.getModule = function(name) {
 	return qh.moduleManager.angularModules[name];
 };
+qh.getQHModule = function(name) {
+	return qh.moduleManager.qhModules.get(name);
+};
