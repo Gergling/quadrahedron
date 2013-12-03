@@ -307,3 +307,6 @@ qh.getModule = function(name) {
 qh.getQHModule = function(name) {
 	return qh.moduleManager.qhModules.get(name);
 };
+qh.component = function(moduleName, moduleComponentSetup) {
+	return moduleComponentSetup(qh.getModule(moduleName), qh.getQHModule(moduleName));
+};
