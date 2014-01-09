@@ -302,7 +302,11 @@ qh.setModule = function(name, config) {
 	qh.moduleManager.setModule(name, config);
 };
 qh.getModule = function(name) {
-	return qh.moduleManager.angularModules[name];
+	if (qh.moduleManager.angularModules[name]) {
+		return qh.moduleManager.angularModules[name];
+	} else {
+		throw "Unknown Module Exception. '"+name+"' is not recognised. The module name must be one of: "+Object.keys(qh.moduleManager.angularModules).join(", ");
+	}
 };
 qh.getQHModule = function(name) {
 	return qh.moduleManager.qhModules.get(name);
