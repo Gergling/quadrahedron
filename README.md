@@ -192,7 +192,26 @@ qh.setModule("fancy-module", {
 Module Components
 -----------------
 
-Finally, we need to get the actual angular code running. In this example, I specify an angular factory:
+Finally, we need to get the actual angular code running. In this example, I specify an angular factory.
+
+There are two ways of doing this, the newer, recommended way is shown first:
+
+<pre>
+
+qh.component('fancy-module', function(angularModule, qhModule) {
+	angularModule.factory(qhModule.getComponent("factory", "fancy-factory").getFullName(), [
+		"$rootScope", 
+		function ($rootScope) {
+			return {"fancy-value": 12};
+		}]
+	)
+);
+
+</pre>
+
+This allows fewer changes if you copy/paste factory files as a template for new factories. 'angularModule' contains the angular version of the module, and 'qhModule' contains the operations exposed in the QH module object, which include getComponent().
+
+However, you may find it less verbose to create the factory the older way:
 
 <pre>
 
