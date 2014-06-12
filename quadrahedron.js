@@ -118,15 +118,19 @@ qh.loader = (function() {
 						// Once all the angular module files are loaded, we can bootstrap angular.
 						// Bootstrap will need to be run once a checklist of modules and their components is complete.
 						if (qh.moduleManager.app.modules.length) {
-							angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
-							$(ldr.getPreloaderElement()).hide();
+							try {
+								angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
+								$(ldr.getPreloaderElement()).hide();
 
-							// We now have the option to run a custom 'ready' function once everything else is complete, 
-							// but I have no use for this yet so I doubt it's working.
-							angular.forEach(ldr.readyFunctions, function(fnc) {
-								// Arguments could go into this function.
-								fnc();
-							});
+								// We now have the option to run a custom 'ready' function once everything else is complete, 
+								// but I have no use for this yet so I doubt it's working.
+								angular.forEach(ldr.readyFunctions, function(fnc) {
+									// Arguments could go into this function.
+									fnc();
+								});
+							} catch (e) {
+								console.error(e.stack || e.message || e);
+							}
 						} else {
 							throw "No app element is set. A module must have a configuration property 'app' set to 'true'.";
 						}
