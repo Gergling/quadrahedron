@@ -319,7 +319,11 @@ qh.moduleManager = (function() {
                 errors.push(moduleName);
             }
         });
-        return ["Modules loaded but not required by any module: "+errors.join(",")];
+        if (errors.length>0) {
+            return ["Modules loaded but not required by any module: "+errors.join(",")];
+        } else {
+            return [];
+        }
     };
 	return man;
 }());
