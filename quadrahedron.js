@@ -300,6 +300,27 @@ qh.moduleManager = (function() {
 		if (config.app) {man.app.modules.push(name);}
 		//requirejs(childModules);
 	};
+    man.checkRequiredModules = function() {
+        // Check every module loaded is required by another module.
+        var loaded = qh.moduleManager.angularModules;
+        var found = {};
+        var errors = [];
+        angular.forEach(loaded, function(ngModule, moduleName) {
+            found[moduleName] = found[moduleName]||false;
+            if (ngModule.requires.length>0) {
+                found[moduleName] = true;
+                angular.forEach(ngModule.requires, function(requiredModuleName) {
+                    found[requiredModuleName] = true;
+                });
+            }
+        });
+        angular.forEach(found, function(flag, moduleName) {
+            if (!flag) {
+                errors.push(moduleName);
+            }
+        });
+        return ["Modules loaded but not required by any module: "+errors.join(",")];
+    };
 	return man;
 }());
 qh.setModule = function(name, config) {
@@ -317,4 +338,9 @@ qh.getQHModule = function(name) {
 };
 qh.component = function(moduleName, moduleComponentSetup) {
 	return moduleComponentSetup(qh.getModule(moduleName), qh.getQHModule(moduleName));
+};
+qh.debug = function() {
+    var errors = [];
+    errors = errors.concat(quadrahedron.moduleManager.checkRequiredModules());
+    return errors;
 };
