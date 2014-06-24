@@ -5,23 +5,6 @@
 var quadrahedron = {};
 var qh = quadrahedron;
 
-// Probably need a 'setup' function to load base libraries and jquery for app directive from one object, or multiple arguments.
-	
-qh.loadLib = function(a) {
-	// We're ignoring this for now, letting the user take care of their own library loading. It seems to be much effort to avoid writing two script tags.
-
-	// Loads a path or array of paths indicating the locations of necessary libraries.
-	var paths = a;
-	if (typeof a === 'string') {paths = [a];}
-	requirejs(paths, function() {
-		// Perhaps once all loaded (qh.checkList({silent:true}) returns true), run all modules.
-		// This sounds as though it should be prompted from a separate function, if the user 
-		// decides they want to load the libs with their own functions.
-		qh.loader.load();
-	});
-
-};
-
 qh.getType = function(a) {
 	var what = Object.prototype.toString;
 	//if (jQuery.isArray(a)) {return "array";}
@@ -191,7 +174,7 @@ qh.moduleLoader = (function() {
 	return ml;
 }());
 
-// qh.ready = function(fnc) {qh.loader.readyFunctions.push(fnc);};
+qh.ready = function(fnc) {qh.loader.readyFunctions.push(fnc);};
 
 qh.moduleManager = (function() {
 	var man = {};
