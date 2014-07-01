@@ -107,22 +107,9 @@ Setup
 
 Now we need to tell QH what to look for.
 
-We need to specify where jQuery and angularjs are. We can do this using script tags, but if slow loading 
-times and race conditions are a concern, QH uses requirejs to ensure everything is loaded after their required
-items are loaded.
+Ensure jQuery and angularjs are loaded. requirejs is recommended for this, since it is a requirement for QH to operate. QH will complain quickly without these frameworks.
 
-In our example, we would find this in the index.html file before the modules are specified:
-
-<pre>
-
-qh.loadLib([
-  "vendor/jQuery/jQuery.js",
-  "vendor/angularjs/angularjs.js"
-]);
-
-</pre>
-
-We also need to choose an app element before the modules are specified. In this case, I'm just using 'document';
+We also need to choose an app element before the modules are specified. In this case, I'm just using 'document'.
 
 <pre>
 
@@ -225,3 +212,46 @@ qh.getModule('fancy-module').factory("fancy-module.factory.fancy-factory", ["$ro
 
 My choice of component naming convention is a personal preference, but not necessary to run QH. That said, QH does
 store component meta-data by this naming convention.
+
+Using with unit-tested code
+---------------------------
+
+If you're unit-testing your application with something such as jasmine, you can attach angular to an unappended element, instead of a document as I do in my examples. This is to avoid oddities in the display behaviour in your browser. It means your application runs, but doesn't show anything.
+
+<pre>
+qh.app(function() {return document.createElement('div');});
+</pre>
+
+Before running 'modules' it may be worth setting up a callback to load your specs, once QH has loaded everything else.
+
+<pre>
+qh.loader.readyFunctions.push(function() {
+	// Load your specs, run your unit-testing environment.
+});
+</pre>
+
+Now run qh.modules as normal, and you should be good to go.
+
+Using with concatenated or minified files
+-----------------------------------------
+
+You might want to run your QH source from concatenated or even minified files, such as in a production environment. If so, you first need to concatenate your module list to the beginning of your source modules. This is instead of running qh.modules.
+
+The following lines are an example of what needs to appear at the beginning of the concatenated code, after your vendor libraries have loaded:
+
+<pre>
+qh.moduleManager.qhModules.add("application", "module");
+qh.moduleManager.qhModules.add("fancy-module", "module");
+qh.moduleManager.qhModules.add("another-module", "module");
+</pre>
+
+When loading your app (such as in index.html):
+
+<pre>
+requirejs(["all-your-code.js"], function() {
+    qh.app(function() {return document;});
+    angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
+});
+</pre>
+
+
