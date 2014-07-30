@@ -331,3 +331,6 @@ qh.debug = function() {
     errors = errors.concat(quadrahedron.moduleManager.checkRequiredModules());
     return errors;
 };
+qh.bootstrap = function() {
+    return angular.bootstrap(qh.moduleManager.app.getAppElement(), qh.moduleManager.app.modules);
+};
