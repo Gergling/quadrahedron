@@ -1,0 +1,21 @@
+{
+  "name": "quadrahedron",
+  "main": "quadrahedron.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Gergling/quadrahedron",
+  "authors": [
+    "Greg Davies <greg.davies@fusepump.com>"
+  ],
+  "description": "Angular modular loader and namespace handler.",
+  "keywords": [
+    "angularjs"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
