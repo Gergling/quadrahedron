@@ -9,7 +9,7 @@ Required Frameworks
 -------------------
 
 <ul>
-  <li>requirejs</li>
+  <li>requirejs - Required for running 'modules' to load files. Can be omitted if QH is only used for namespacing modules.</li>
   <li>angularjs</li>
   <li>jQuery</li>
 </ul>
